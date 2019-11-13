@@ -187,7 +187,7 @@ void getSettingsJS(byte subPage, char* dest)
     }
 
     sappends('s',"CM",cmDNS);
-    sappend('v',"AT",apWaitTimeSecs);
+    sappend('i',"AB",apBehavior);
     sappends('s',"AS",apSSID);
     sappend('c',"AH",apHide);
 
@@ -223,8 +223,14 @@ void getSettingsJS(byte subPage, char* dest)
   }
 
   if (subPage == 2) {
+    #ifdef ESP8266
+    #if LEDPIN == 3
+    oappend("d.Sf.LC.max=500;");
+    #endif
+    #endif
     sappend('v',"LC",ledCount);
     sappend('v',"MA",strip.ablMilliampsMax);
+    sappend('v',"LA",strip.milliampsPerLed);
     if (strip.currentMilliamps)
     {
       sappends('m',"(\"pow\")[0]","");
@@ -390,7 +396,6 @@ void getSettingsJS(byte subPage, char* dest)
     sappend('c',"NO",otaLock);
     sappend('c',"OW",wifiLock);
     sappend('c',"AO",aOtaEnabled);
-    sappend('c',"NA",recoveryAPDisabled);
     sappends('m',"(\"msg\")[0]","WLED ");
     olen -= 2; //delete ";
     oappend(versionString);
