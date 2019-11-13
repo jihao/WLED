@@ -125,8 +125,8 @@ void beginStrip()
 void initAP(bool resetAP=false){
   if (apBehavior == 3 && !resetAP) return;
 
-  if (!apSSID[0] || resetAP) strcpy(apSSID, "WLED-AP");
-  if (resetAP) strcpy(apPass,"wled1234");
+  if (!apSSID[0] || resetAP) strcpy(apSSID, "HASSLIGHT-WLED-AP");
+  if (resetAP) strcpy(apPass,"");
   DEBUG_PRINT("Opening access point ");
   DEBUG_PRINTLN(apSSID);
   WiFi.softAPConfig(IPAddress(4, 3, 2, 1), IPAddress(4, 3, 2, 1), IPAddress(255,255,255,0));

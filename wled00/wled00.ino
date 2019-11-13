@@ -105,7 +105,7 @@ char versionString[] = "0.8.7-dev";
 
 
 //AP and OTA default passwords (for maximum change them!)
-char apPass[65] = "wled1234";
+char apPass[65] = "";
 char otaPass[33] = "wledota";
 
 

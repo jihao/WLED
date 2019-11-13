@@ -13,6 +13,16 @@ void shortPressAction()
   }
 }
 
+void doublePressAction()
+{
+  if (!macroDoublePress)
+  {
+    setNextEffect();
+    colorUpdated(2);
+  } else {
+    applyMacro(macroDoublePress);
+  }
+}
 
 void handleButton()
 {
@@ -51,7 +61,11 @@ void handleButton()
       {
         if (doublePress) applyMacro(macroDoublePress);
         else buttonWaitTime = millis();
-      } else shortPressAction();
+      } else {
+        // shortPressAction();
+        if (doublePress) doublePressAction();
+        else buttonWaitTime = millis();
+      }
     }
     buttonPressedBefore = false;
     buttonLongPressed = false;

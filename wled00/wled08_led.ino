@@ -14,6 +14,12 @@ void toggleOnOff()
   }
 }
 
+void setNextEffect() {
+  effectCurrent = effectCurrent + 1;
+    if (effectCurrent > strip.getModeCount()-1) {
+      effectCurrent = 0;
+  }
+}
 
 void setAllLeds() {
   if (!realtimeActive || !arlsForceMaxBri)

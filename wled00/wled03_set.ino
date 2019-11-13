@@ -472,6 +472,15 @@ bool handleSet(AsyncWebServerRequest *request, const String& req)
   updateVal(&req, "IX=", &effectIntensity);
   updateVal(&req, "FP=", &effectPalette, 0, strip.getPaletteCount()-1);
 
+  //set Next FX effect
+  pos = req.indexOf("&NFX");
+  if (pos > 0) {
+    effectCurrent = effectCurrent + 1;
+    if (effectCurrent > strip.getModeCount()-1) {
+      effectCurrent = 0;
+    }
+  }
+
   //set hue polling light: 0 -off
   #ifndef WLED_DISABLE_HUESYNC
   pos = req.indexOf("HP=");
