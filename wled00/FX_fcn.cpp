@@ -76,7 +76,6 @@ void WS2812FX::service() {
   if(doShow) {
     yield();
     show();
-    _lastShow = millis();
   }
   _triggered = false;
 }
@@ -243,6 +242,7 @@ void WS2812FX::show(void) {
   }
   
   bus->Show();
+  _lastShow = millis();
 }
 
 void WS2812FX::trigger() {
@@ -438,6 +438,10 @@ WS2812FX::Segment* WS2812FX::getSegments(void) {
   return _segments;
 }
 
+uint32_t WS2812FX::getLastShow(void) {
+  return _lastShow;
+}
+
 void WS2812FX::setSegment(uint8_t n, uint16_t i1, uint16_t i2) {
   if (n >= MAX_NUM_SEGMENTS) return;
   Segment& seg = _segments[n];
@@ -448,6 +452,7 @@ void WS2812FX::setSegment(uint8_t n, uint16_t i1, uint16_t i2) {
     unlockRange(seg.start, seg.stop);
     _modeUsesLock = true;
   }
+  _segment_index = n; fill(0); //turn old segment range off
   if (i2 <= i1) //disable segment
   {
     seg.stop = 0; return;

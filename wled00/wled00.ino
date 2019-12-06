@@ -3,7 +3,7 @@
  */
 /*
  * @title WLED project sketch
- * @version 0.8.6
+ * @version 0.8.7-dev
  * @author Christian Schwinne
  */
 
@@ -32,6 +32,8 @@
 //to toggle usb serial debug (un)comment the following line
 //#define WLED_DEBUG
 
+//to toggle using analog RGB or RGBW led strips (un)comment the following line
+//#define WLED_DISABLE_ANALOG_LEDS
 
 //library inclusions
 #include <Arduino.h>
@@ -55,7 +57,6 @@
  #include <ArduinoOTA.h>
 #endif
 #include <SPIFFSEditor.h>
-#include "src/dependencies/time/Time.h"
 #include "src/dependencies/time/TimeLib.h"
 #include "src/dependencies/timezone/Timezone.h"
 #ifndef WLED_DISABLE_ALEXA
@@ -68,7 +69,7 @@
 #ifndef WLED_DISABLE_BLYNK
  #include "src/dependencies/blynk/BlynkSimpleEsp.h"
 #endif
-#include "src/dependencies/e131/E131.h"
+#include "src/dependencies/e131/ESPAsyncE131.h"
 #include "src/dependencies/async-mqtt-client/AsyncMqttClient.h"
 #include "src/dependencies/json/AsyncJson-v6.h"
 #include "src/dependencies/json/ArduinoJson-v6.h"
@@ -87,6 +88,7 @@
 #endif
 
 #ifdef ARDUINO_ARCH_ESP32
+  #define WLED_DISABLE_ANALOG_LEDS  // Solid RGBW not implemented for ESP32 yet
  /*#ifndef WLED_DISABLE_INFRARED
   #include <IRremote.h>
  #endif*/ //there are issues with ESP32 infrared, so it is disabled for now
@@ -100,7 +102,7 @@
 
 
 //version code in format yymmddb (b = daily build)
-#define VERSION 1911121
+#define VERSION 1911201
 char versionString[] = "0.8.7-dev";
 
 
@@ -171,7 +173,7 @@ bool useHSBDefault = useHSB;
 
 //Sync CONFIG
 bool buttonEnabled =  true;
-bool irEnabled     = false;                   //Infrared receiver
+bool irEnabled     = true;                   //Infrared receiver
 
 uint16_t udpPort    = 21324;                  //WLED notifier default port
 uint16_t udpRgbPort = 19446;                  //Hyperion port
@@ -197,8 +199,7 @@ bool receiveDirect    =  true;                //receive UDP realtime
 bool arlsDisableGammaCorrection = true;       //activate if gamma correction is handled by the source
 bool arlsForceMaxBri = false;                 //enable to force max brightness if source has very dark colors that would be black
 
-bool e131Enabled = true;                      //settings for E1.31 (sACN) protocol
-uint16_t e131Universe = 1;
+uint16_t e131Universe = 1;                    //settings for E1.31 (sACN) protocol
 bool e131Multicast = false;
 
 char mqttDeviceTopic[33] = "";                //main MQTT topic (individual per device, default is wled/mac)
@@ -301,6 +302,8 @@ byte briOld = 0;
 byte briT = 0;
 byte briIT = 0;
 byte briLast = 127;                           //brightness before turned off. Used for toggle function
+byte white = 0;
+byte whiteLast = 0;                           //white level before turned off. Used for toggle function
 
 //button
 bool buttonPressedBefore = false;
@@ -434,10 +437,17 @@ AsyncWebServer server(80);
 AsyncClient* hueClient = NULL;
 AsyncMqttClient* mqtt = NULL;
 
+//function prototypes
+void serveMessage(AsyncWebServerRequest*,uint16_t,String,String,byte);
+void handleE131Packet(e131_packet_t*, IPAddress);
+
+#define E131_MAX_UNIVERSE_COUNT 7
+
 //udp interface objects
 WiFiUDP notifierUdp, rgbUdp;
 WiFiUDP ntpUdp;
-E131* e131;
+ESPAsyncE131 e131(handleE131Packet);
+bool e131NewData = false;
 
 //led fx library object
 WS2812FX strip = WS2812FX();
@@ -468,11 +478,6 @@ WS2812FX strip = WS2812FX();
  #endif
  #include "SPIFFSEditor.h"
 #endif
-
-
-//function prototypes
-void serveMessage(AsyncWebServerRequest*,uint16_t,String,String,byte);
-
 
 //turns all LEDs off and restarts ESP
 void reset()
