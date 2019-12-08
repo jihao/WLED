@@ -3,10 +3,10 @@
 #define NpbWrapper_h
 
 //PIN CONFIGURATION
-#define LEDPIN 2  //strip pin. Any for ESP32, gpio2 or 3 is recommended for ESP8266 (gpio2/3 are labeled D4/RX on NodeMCU and Wemos)
+#define LEDPIN 3  //strip pin. Any for ESP32, gpio2 or 3 is recommended for ESP8266 (gpio2/3 are labeled D4/RX on NodeMCU and Wemos)
 //#define USE_APA102 // Uncomment for using APA102 LEDs.
-#define BTNPIN -1 //button pin. Needs to have pullup (gpio0 recommended)
-#define IR_PIN  0 //infrared pin (-1 to disable)  MagicHome: 4, H801 Wifi: 0
+#define BTNPIN 0 //button pin. Needs to have pullup (gpio0 recommended)
+#define IR_PIN  -1 //infrared pin (-1 to disable)  MagicHome: 4, H801 Wifi: 0
 #define RLYPIN -1 //pin for relay, will be set HIGH if LEDs are on (-1 to disable). Also usable for standby leds, triggers,...
 #define AUXPIN -1 //debug auxiliary output pin (-1 to disable)
 
@@ -22,10 +22,10 @@
 
 #ifndef WLED_DISABLE_ANALOG_LEDS
   //PWM pins - PINs 15,13,12,14 (W2 = 04)are used with H801 Wifi LED Controller
-  #define RPIN 15   //R pin for analog LED strip   
-  #define GPIN 13   //G pin for analog LED strip
-  #define BPIN 12   //B pin for analog LED strip
-  #define WPIN 14   //W pin for analog LED strip (W1: 14, W2: 04)
+  // #define RPIN 15   //R pin for analog LED strip   
+  // #define GPIN 13   //G pin for analog LED strip
+  // #define BPIN 12   //B pin for analog LED strip
+  // #define WPIN 14   //W pin for analog LED strip (W1: 14, W2: 04)
   //
   /*PWM pins - PINs 5,12,13,15 are used with Magic Home LED Controller
   #define RPIN 5   //R pin for analog LED strip   
@@ -33,6 +33,11 @@
   #define BPIN 13   //B pin for analog LED strip
   #define WPIN 15   //W pin for analog LED strip (W1: 14, W2: 04)
   */
+   //PWM pins - PINs 5,16,4,2 are used with HassLight LED Controller
+  #define RPIN 5   //R pin for analog LED strip    // D1
+  #define GPIN 16  //G pin for analog LED strip    // D0
+  #define BPIN 4   //B pin for analog LED strip    // D2
+  #define WPIN 2   //W pin for analog LED strip (W1: 14, W2: 04) // D4
 #endif
 
 //automatically uses the right driver method for each platform
